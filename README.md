@@ -12,7 +12,7 @@ I created this repo to deepen my understanding of the full stack and to keep imp
 
 | Section | What it covers | Status |
 | --- | --- | --- |
-| [JavaScript](./javascript) | Closures, prototypes, higher-order functions, polyfills, object iteration | In progress |
+| [JavaScript](https://github.com/lake7756/Fullstack-Concepts-Explained/tree/main/Javascript) | Closures, prototypes, higher-order functions, polyfills, object iteration | In progress |
 | [React](./react) | Components, hooks, state and rendering concepts | Coming soon |
 | [Node.js](./nodejs) | Backend fundamentals, the event loop, APIs and servers | Coming soon |
 
