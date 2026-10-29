@@ -1,0 +1,116 @@
+Question: What is throttling?
+answer: Throttling is when a function is called at most once in a particular duration irrespective of the number of calls made. Limiting API calls leads to performance optimization.
+eg: scroll events, resize events, continuous operations like fetching users location on google maps. 
+
+key points: Debounce is when a function is called after a delay when user stops typing.
+eg: Used for search optimization.
+
+code:
+// Throttling with calling the last request sent during the 'no-call' duration.
+var throttle = function (fn, t) {
+  let time = 0;
+  let timeout = null;
+  return function (...args) {
+    if (Date.now() < time) {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        time += t;
+        return fn(...args);
+      }, time - Date.now());
+    } else {
+      time = Date.now() + t;
+      return fn(...args);
+    }
+  };
+};
+
+Q: Code to create n buttons dynamically, clicking on each should give out button 1 clicked .... button n clicked.
+
+code: 
+!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = `Click me`;
+        document.body.appendChild(btn);
+        btn.addEventListener("click", () => {
+          console.log(`button ${i} clicked`);
+        });
+      }
+    </script>
+  </body>
+</html>
+
+const throttled = throttle(console.log, 100);
+throttled("log"); // logged immediately.
+throttled("log"); // cancelled.
+throttled("log"); // logged at t=100ms.
+
+Q: What is prototypal inheritance?
+answer: Prototypal inheritance is the way JavaScript objects share properties and methods with each other. Every object has a hidden link to
+another object called its prototype. 
+When you access a property that the object doesn’t have itself, JavaScript follows that link and looks in the prototype, then the 
+prototype’s prototype, and so on until it finds the property or reaches null. This series of links is called the prototype chain.
+
+code: Creating a prototype with Object.create().
+
+const animal = {
+  eats: true,
+  eat() { return "Eating..."; }
+};
+
+const dog = Object.create(animal);   // dog's prototype is animal
+dog.barks = true;
+
+dog.barks;     // true (own property)
+dog.eats;      // true (borrowed from animal)
+dog.eat(); 
+
+Accessing function's prototype using function.prototype:
+
+function Person(name) {
+  this.name = name;               // each instance has its own name
+}
+
+Person.prototype.greet = function () {   // shared by all instances
+  return "Hi, I'm " + this.name;
+};
+
+const a = new Person("Asha");
+const b = new Person("Ravi");
+
+a.greet();                               // "Hi, I'm Asha"
+a.greet === b.greet;                     // true (same shared function)
+Object.getPrototypeOf(a) === Person.prototype;   // true
+
+key points: Every object has an internal prototype link (Object.prototype), accessed with Object.getPrototypeOf(obj).
+.prototype is a property on constructor functions and classes. It becomes the prototype of objects created with new. So not accessible to 
+objects or arrow functions
+
+Q: What is compose?
+answer: Compose is a higher order function (since takes in a function an returns a function). 
+It combines several functions into one. The functions run right to left, and each function’s output becomes the next function’s input.
+
+code:
+
+function compose(...functions) {
+    return function (initialValue) {
+        return functions.reduceRight((acc, fn) => fn(acc), initialValue);
+    };
+}
+
+const add1 = x => x + 1;
+const double = x => x * 2;
+const square = x => x * x;
+
+const calc = compose(square, double, add1);
+calc(3);
+
+key points: Opposite of compose is pipe which uses reduce to run functions from left to right.
