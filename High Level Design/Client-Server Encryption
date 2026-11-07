@@ -12,14 +12,16 @@ Using:
 2. Asymmetric keys (Obtains Symmetric encryption using ECDHE keys and HKDF to derive symmetric keys)
 
 How they get the same key?
-1. Browser and server shares their public keys along with TLS encryption version and server shares its SSL certificate.
-2. Client combines its private key with server's public key
-3. Server combines its private key with browser's public key.
-4. Using Diffie-Hellman mathematical operation they reach a shared secret with this and then use HKDF to get the symmetric keys.
-5. They use this for Symmetric encryption and Symmetric decryption.
-6. Browsers or OS verify Server's validity using SSL digital certificate. They look for a valid unexpired signature.
-7. The Server's public keys are also authenticated against this certificate.
-8. Once it is done they give each other Finished and HTTP communication begins.
+1. Browser and server shares their public keys along with TLS encryption version, chosen curve and server shares its SSL certificate.
+2. The base point G is already known to both client and server. Client and Server combines its public keys with G and share them across 
+network as public keys. (aG, bG)
+3. Client combines its private key with server's public key. (abG)
+4. Server combines its private key with browser's public key. (baG)
+5. Using Diffie-Hellman mathematical operation they reach a shared secret with this and then use HKDF to get the symmetric keys.
+6. They use this for Symmetric encryption and Symmetric decryption.
+7. Browsers or OS verify Server's validity using SSL digital certificate. They look for a valid unexpired signature.
+8. The Server's public keys are also authenticated against this certificate.
+9. Once it is done they give each other Finished and HTTP communication begins.
 
 The TLS are temporary in nature and are valid as long as underlying TCP is valid.
 Also called ECDHE (Elliptic Curve Diffie-Hellman Ephemeral) keys because Elliptical Curve mathematical formula is used to achieve this.
