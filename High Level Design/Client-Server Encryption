@@ -1,13 +1,25 @@
-What happens when you click on www.amazon.com
+Q:What happens when you click on www.amazon.com
+
+Answer:
 Client and Server establish a TCP connection. After this they establish a TLS (Transport Layer Security) connection.
-Why? A hacker can intercept the data between a client and server or tamper it if not encrypted
-How? Using Symmetric keys (client and server uses the same key ) and Asymmetric keys (Obtains Symmetric encryption using ECDHE keys and HKDF to derive symmetric keys)
-How they get the same key: Browser and server shares their public keys along with TLS encryption version and server shares its SSL certificate.
-Client combines its private key with server's public key
-Server combines its private key with browser's public key.
-They reach a shared secret with this and then use HKDF to get the symmetric keys.
-They use this for Symmetric encryption and Symmetric decryption.
-Browsers or OS verify Server's validity using SSL digital certificate. They look for a valid unexpired signature, The Server's public keys are also authenticated against this certificate.
-Once it is done they give each other Finished and begin with their communication.
+
+Why is it needed? 
+A hacker can intercept the data between a client and server or tamper it if not encrypted
+
+How is it achieved? 
+Using:
+1. Symmetric keys (client and server uses the same key) 
+2. Asymmetric keys (Obtains Symmetric encryption using ECDHE keys and HKDF to derive symmetric keys)
+
+How they get the same key?
+1. Browser and server shares their public keys along with TLS encryption version and server shares its SSL certificate.
+2. Client combines its private key with server's public key
+3. Server combines its private key with browser's public key.
+4. Using Diffie-Hellman mathematical operation they reach a shared secret with this and then use HKDF to get the symmetric keys.
+5. They use this for Symmetric encryption and Symmetric decryption.
+6. Browsers or OS verify Server's validity using SSL digital certificate. They look for a valid unexpired signature.
+7. The Server's public keys are also authenticated against this certificate.
+8. Once it is done they give each other Finished and HTTP communication begins.
+
 The TLS are temporary in nature and are valid as long as underlying TCP is valid.
 Also called ECDHE (Elliptic Curve Diffie-Hellman Ephemeral) keys because Elliptical Curve mathematical formula is used to achieve this.
