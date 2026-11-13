@@ -206,3 +206,109 @@ console.log(arr.forEach((x) => console.log(x * 2)));
 // arr.forEach(u => sendEmail(u));
 
 console.log(arr, mappedArr);
+
+Q: What is Cluster?
+
+answer:
+Using cluster processes we spawn multiple process on multi core so as to serve multiple requests concurrently. The processes are assigned 
+to requests in a round robin fashion by the primary process (default MACOs/ Linux). We can choose the number of cpus as the number of 
+processes. The primary process is on one of the cpus assigned by the OS since mostly idle.
+
+const cluster = require("cluster");
+const CPUs = require("os").availableParallelism;
+
+if (cluster.isPrimary) {
+  for (let i = 1; i <= CPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on("exit", () => cluster.fork());
+} else {
+  const express = require("express");
+  const app = express();
+
+  app.get("/", (req, res) => {
+    res.send(`Listening on port 3000 ${process.pid}`);
+  });
+
+  app.listen(3000, () => {
+    console.log(`Listening on port 3000 ${process.pid}`);
+  });
+}
+
+Q: What are worker threads
+
+answer:
+1. We use worker threads when we want to perform some synchronous blocking non IO operations since it would not go the the libuv threads. 
+For eg: adding a billion numbers
+2. For this we use a worker thread which can run the worker file in a separate thread but under same process in a free core decided by OS 
+to achieve parallelism.
+3. We get a worker object in the main thread so as to get a handle on the threads call callabacks on events like message or error.
+4. We use parentPort.postMessage to send data back to the main thread.
+5. Each thread gets its own memory and event loop but not a different process.
+
+code:
+
+const {
+  Worker,
+  isMainThread,
+  workerData,
+  parentPort,
+  threadId,
+} = require("worker_threads");
+
+if (isMainThread) {
+  // worker is a Worker object, a handle the main thread uses to control and talk to the new thread the object key has to be workerData nodejs worker constructor looks for it.
+  const worker = new Worker(__filename, { workerData: 40 });
+
+  const interval = setInterval(() => {
+    console.log(`Running the main thread ${process.pid} ${threadId}`);
+  }, 100);
+
+  // callback to run on post message
+  worker.on("message", (data) => {
+    clearInterval(interval);
+    console.log(`Result from worker ${data}`);
+  });
+
+  // callback to run on error
+  worker.on("error", (err) => {
+    clearInterval(interval);
+    console.log(err);
+  });
+
+  worker.on("exit", () => clearInterval(interval));
+} else {
+  console.log(
+    `Data passed by parent ${workerData}, ${process.pid} ${threadId}`,
+  );
+  const fib = (n) => (n < 2 ? n : fib(n - 2) + fib(n - 1));
+  parentPort.postMessage(fib(workerData));
+}
+
+Question: Cluster v/s Worker
+
+answer:
+Cluster:
+ Each worker is a new OS process, so it is heavier.
+ Each has a different process id.
+ Processes do not share memory; each has its own V8 instance and event loop.
+ They communicate using inter-process communication (IPC) messages.
+ The OS chooses the core.
+ Each process has its own libuv thread pool.
+ Usage: handle more requests in parallel across cores.
+ All workers share the same port.
+ A crashed process is fully isolated; the primary can respawn it
+ (cluster.on("exit", () => cluster.fork())).
+
+Worker Thread:
+ Runs in the same process, so it is lighter.
+ Same process id.
+ Each thread has its own V8 instance, JS heap and event loop. Threads communicate with messages (postMessage / workerData, data is copied) 
+ and can optionally share raw memory with SharedArrayBuffer (use Atomics to avoid race conditions).
+ The OS chooses the core.
+ The libuv thread pool is shared by all threads in the process.
+ Usage: CPU-heavy work, so the main thread's event loop isn't blocked.
+ Workers don't receive requests: the main thread runs the server and delegates heavy tasks.
+ A thread's uncaught error is handled with worker.on("error") on the main thread;
+ worker.on("exit") fires however the thread ended, and is where a respawn would go.
