@@ -1,4 +1,5 @@
 Question: What is throttling?
+
 answer: Throttling is when a function is called at most once in a particular duration irrespective of the number of calls made. Limiting API calls leads to performance optimization.
 eg: scroll events, resize events, continuous operations like fetching users location on google maps. 
 
@@ -54,6 +55,7 @@ throttled("log"); // cancelled.
 throttled("log"); // logged at t=100ms.
 
 Q: What is prototypal inheritance?
+
 answer: Prototypal inheritance is the way JavaScript objects share properties and methods with each other. Every object has a hidden link to
 another object called its prototype. 
 When you access a property that the object doesn’t have itself, JavaScript follows that link and looks in the prototype, then the 
@@ -95,6 +97,7 @@ key points: Every object has an internal prototype link (Object.prototype), acce
 objects or arrow functions
 
 Q: What is compose?
+
 answer: Compose is a higher order function (since takes in a function an returns a function). 
 It combines several functions into one. The functions run right to left, and each function’s output becomes the next function’s input.
 
@@ -114,3 +117,92 @@ const calc = compose(square, double, add1);
 calc(3);
 
 key points: Opposite of compose is pipe which uses reduce to run functions from left to right.
+
+Q: Why does .prototype exist on constructors but not on instances?
+
+answer:.prototype is only present on constructor functions not on instances.
+why?
+Because we need .prototype on constructor functions so that when we call new Dog() we have some way to set the prototype of the new object 
+created. Since we cannot use Object.getPrototype() then as the object is not created yet.
+Benefit: Common functions can be added there as well so that memory can be saved while creating instances
+But for instances since they dont act as constructor objects they dont need .prototype
+code:
+Object.getPrototypeOf(myDog) === Dog.prototype
+
+Q: null vs undefined: when do you use each?
+answer: undefined - set automatically by js engine for a variable for uninitialized variables or missing parameters, functions with no return values etc. We generally do not set undefined to variables ourselves
+null - set by developer. To be used when we want to indicate an empty value.
+
+Q: Allowed Patch Statuses
+
+answer: What is patch? Patch is used to partially update a record.
+Different patch statuses: 200 -> success and record is returned, 204 -> success and record is not returned, 400 -> bad request malformed, 404 -> user not found, 409 -> the records added conflict, 429 -> too many requests
+
+code: 
+const express = require("express");
+const server = express();
+server.use(express.json());
+const PORT = 3000;
+const data = [
+  {
+    id: 1,
+    name: "Suruchi",
+    email: "suruchi2@salesforce.com",
+    age: 44,
+    section: "B",
+  },
+  {
+    id: 2,
+    name: "Ashutosh",
+    email: "ashutosh@freshworks.com",
+    age: 34,
+    section: "A",
+  },
+];
+
+const ALLOWED = ["name", "email", "age", "section"];
+
+server.listen(PORT, () => {
+  console.log("Server is listening on Port " + PORT);
+});
+
+server.patch("/users/:id", (req, res) => {
+  const id = req.params.id;
+  const patchData = req.body;
+
+  const record = data[id - 1];
+
+  if (!record) {
+    return res.status(404).json("No record with id " + id);
+  }
+
+  const badEntry = Object.keys(patchData).filter(
+    (key) => !ALLOWED.includes(key),
+  );
+
+  if (badEntry.length > 0) {
+    return res.status(400).json("Malformed data sent");
+  }
+
+  if (data.some((d) => d.email == patchData.email && d.id !== record.id)) {
+    return res.status(409).json("Same email already exists");
+  }
+
+  Object.assign(record, patchData);
+  res.status(200).json(record);
+  // res.sendStatus(204);
+});
+
+Q: map vs forEach: how do you decide?
+
+answer: map() creates and returns a new array. Used to transform data.
+forEach() only loops and returns undefined. forEach() is used for side effects like logging or sendingEmails etc.
+
+code:
+const arr = [1, 2, 3, 4];
+const mappedArr = arr.map((x) => x * 2);
+
+console.log(arr.forEach((x) => console.log(x * 2)));
+// arr.forEach(u => sendEmail(u));
+
+console.log(arr, mappedArr);
