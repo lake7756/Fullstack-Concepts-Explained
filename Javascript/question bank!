@@ -213,6 +213,8 @@ answer:
 Using cluster processes we spawn multiple process on multi core so as to serve multiple requests concurrently. The processes are assigned 
 to requests in a round robin fashion by the primary process (default MACOs/ Linux). We can choose the number of cpus as the number of 
 processes. The primary process is on one of the cpus assigned by the OS since mostly idle.
+We can use PM2 if we dont want to create clusters ourself.
+We can install globally and use pm2 start app.js -i max    # one process per CPU core
 
 const cluster = require("cluster");
 const CPUs = require("os").availableParallelism;
