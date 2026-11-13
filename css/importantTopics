@@ -1,0 +1,18 @@
+Q: Pseudo class v/s Pseudo elements
+
+answer: 
+pseudo-class -> Pseudo class is applied on a certain state or condition of an element.
+code:
+input:disabled {}
+input:focus {}
+button:hover{}
+li:first-child{}
+a:visited{}
+
+:: pseudo-element -> Pseudo element is applied on part of a element or virtual elements created with ::before or ::after
+code:
+p::first-line{}
+p::first-letter{}
+input::placeholder{}
+a::before{}
+a::after{}
